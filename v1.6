@@ -1,0 +1,362 @@
+import mysql.connector
+from datetime import date
+import math
+
+profile = []
+data1 = [0]
+data2 = [0]
+koko = [0]
+today = date.today()
+
+
+##this program fuction is for connect this program to mysql database
+##      CONNECT
+def koneksi():
+    db = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="",
+        database="e-Bank",
+        autocommit = True
+    )
+    if db.is_connected():
+        return db
+    else:
+        print ('db disconected')
+
+        
+db = koneksi()
+
+##show profile information
+
+#info saldo
+def info(data):
+    cursor=db.cursor()
+    sql="""SELECT*FROM anggota WHERE id=%s"""
+    cursor.execute(sql,data)
+    result=cursor.fetchall()
+    for data in result:
+        print("+--+----------------------------+---------------+")
+        print("|ID|Nama\t\t\t|Saldo","\t\t|")
+        print("+--++---------------------------+---------------+")
+        print("|",data[0],"|",data[1],"\t\t\t|","Rp.",data[3],"|")
+        print("+---+---------------------------+---------------+ \n")
+        o = int (input("0 for back : "))
+        if (o == 0):
+            menu()
+        else:
+            exit()
+
+##search recipient account
+#transfer
+def transfer(data2):
+    cursor=db.cursor()
+    sql="""SELECT*FROM anggota WHERE id=%s"""
+    cursor.execute(sql,data2)
+    result=cursor.fetchall()
+    for data in result:
+        nama = data[1]
+        saldop = data[3]
+        data3 = [nama, saldop]
+        return data3
+    if data is None:
+        print ("Data tidak ditemukan")
+        o = int (input("0 for back : "))
+        if (o == 0):
+            menu()
+        else:
+            exit()
+            
+## to edit or change the sender's data
+
+def transfer1(sisa,saldo,idp):
+    q= int (sisa)
+    w= int (saldo)
+    e= int (idp)
+    nama = (profile[1])
+    hasil= q - w
+    data = [hasil,e]
+    cursor=db.cursor()
+    sql="""UPDATE anggota SET saldo=(%s)WHERE id=(%s)"""
+    cursor.execute(sql,data)
+    db.commit()
+    print('{}Saldo dikirim!'.format(cursor.rowcount))
+    data1.insert(0,e)
+    data1.insert(1,nama)
+
+#program to edit recipient data
+def transfer2(saldot,saldo,idt,namapene):
+    q= int (saldot)
+    w= int (saldo)
+    e= int (idt)
+    hasil= q + w
+    data = [hasil,e]
+    cursor=db.cursor()
+    sql="""UPDATE anggota SET saldo=(%s)WHERE id=(%s)"""
+    cursor.execute(sql,data)
+    db.commit()
+    print('{}Saldo dikirim!'.format(cursor.rowcount))
+    data2.insert(0,e)
+    data2.insert(1,namapene)
+    data2.insert(2,w)
+
+##to add transaction history
+#riwayat
+def riwayat():
+    idpgm=int(data1[0])
+    namapgm=(data1[1])
+    idprm=int(data2[0])
+    namaprm=(data2[1])
+    nominal=int(data2[2])
+    d = today.strftime("%Y/%m/%d")
+    data = (idpgm,namapgm,idprm,namaprm,nominal,d)
+    cursor = db.cursor()
+    sql="""INSERT INTO transaksi (id_pengirim,nama_pengirim,id_penerima,nama_penerima,nominal,tanggal) VALUES ((%s),%s,(%s),%s,(%s),%s)"""
+    cursor.execute(sql,data)
+    db.commit()
+
+
+##this is program to show sended money
+def riwayat1(data):
+    cursor=db.cursor()
+    sql="""SELECT*FROM transaksi WHERE id_pengirim=(%s)"""
+    cursor.execute(sql,data)
+    result=cursor.fetchall()
+    print("\t\t riwayat keluar\n")
+    print("+-------------------------------------------------------------------------------------------------------------------------+")
+    print("| ID Pengirim | Nama Pengirim | ID Penerima | Nama Penerima | Nominal | Tanggal Transaksi|")
+    print("+-------------------------------------------------------------------------------------------------------------------------+")
+    for data in result:
+        print("|",data[0],"\t\t|",data[1],"\t\t|",data[2],"\t|",data[3],"\t|",data[4],"\t|",data[5])
+        print("+-------------------------------------------------------------------------------------------------------------------------+")
+
+##this is program to show recived money
+def riwayat2(data):
+    cursor=db.cursor()
+    sql="""SELECT*FROM transaksi WHERE id_penerima=(%s)"""
+    cursor.execute(sql,data)
+    result=cursor.fetchall()
+    print("\t\t riwayat masuk\n")
+    print("+-------------------------------------------------------------------------------------------------------------------------+")
+    print("| ID Penerima | Nama Penerima | ID Pengirim | Nama Pengirim | Nominal | Tanggal Transaksi|")
+    print("+-------------------------------------------------------------------------------------------------------------------------+")
+    for data in result:
+        print("|",data[2],"\t\t|",data[3],"\t|",data[0],"\t\t|",data[1],"\t\t|",data[4],"\t|",data[5])
+        print("+-------------------------------------------------------------------------------------------------------------------------+")
+        
+    o = int (input("0 for back : "))
+    if (o == 0):
+        menu()
+    else:
+            exit()
+            
+##this is program to cahge password
+
+def ganti(pa,gp,id_):
+    cursor=db.cursor()
+    sql="""SELECT*FROM anggota WHERE id=%s"""
+    cursor.execute(sql,id_)
+    result=cursor.fetchall()
+    for data in result:
+        if (pa==data[2]):
+            idnumber = int (data[0])
+            apa = [gp,idnumber]
+            cursor=db.cursor()
+            sql="""UPDATE anggota SET password=%s WHERE id=(%s)"""
+            cursor.execute(sql,apa)
+            db.commit()
+            print('{}Password Berhasil Dirubah!'.format(cursor.rowcount))
+            o = int (input("0 for back : "))
+            if (o == 0):
+                menu()
+            else:
+                exit()
+        else:
+            print ("Password awal tidak cocok")
+            o = int (input("0 for back : "))
+            if (o == 0):
+                menu()
+            else:
+                exit()
+
+
+
+## this is sub menu 
+def menu():
+    nama = (profile[1])
+    print ("\t","Selamat datang",nama)
+
+
+    print ('\t''Pilih Menu''\t')
+    print ("1. info saldo")
+    print ("2. Transfer")
+    print ("3. Riwayat transaksi")
+    print ("4. Ganti Password")
+    print ("0. Keluar")
+    pill2=int(input("Pilih Menu: "))
+    
+    ##this is to show member info
+    if(pill2==1):
+        id_=int(profile[0])
+        data = [id_]
+        info(data)
+        
+    ##this is for send money to other user or account
+    elif(pill2==2):
+        idp=int(profile[0])
+        sisa=int(profile[2])
+        idt=int(input("Masukan ID yang di transfer: "))
+        saldo =int(input("Masukan nominal transfer: "))
+        data1=[idp]
+        data2=[idt]
+        sald=saldo
+        data3 = transfer(data2)
+        namapene= data3[0]
+        saldot =int (data3[1])
+        print ("Konfirmasi transfer")
+        print ("NAMA : " , namapene)
+        print ("Nominal :" , sald)
+        print ("Sisa saldo anda : Rp.",sisa )
+        if (sisa > 1):
+            cukup = sisa - sald
+            if (cukup >=  1 ):
+                i = input ("\t y/n : " )
+                if (i == "y") or (i == "Y"):
+                    transfer1(sisa,saldo,idp)
+                    transfer2(saldot,saldo,idt,namapene)
+                    riwayat()
+                    o = int (input("0 for back : "))
+                    if (o == 0):
+                        menu()
+                    else:
+                        exit()
+                else:
+                    print ("transfer di batalkan")
+                    o = int (input("0 for back : "))
+                    if (o == 0):
+                        menu()
+                    else:
+                        exit()
+            else:
+                print ("Saldo tidak cukup")
+                o = int (input("0 for back : "))
+                if (o == 0):
+                    menu()
+                else:
+                    exit()
+        else:
+            print ("saldo anda kurang dari 1 tidak dapat melanjutkan transaski")
+            o = int (input("0 for back : "))
+            if (o == 0):
+                menu()
+            else:
+                exit()
+
+    ##this is for show history off transactions
+    elif(pill2==3):
+        idp=int(profile[0])
+        data = [idp]
+        riwayat1(data)
+        riwayat2(data)
+
+    #this fuction is to change a password account
+    elif(pill2==4):
+        idp= (profile[0])
+        pa = input("Masukan password awal: ")
+        gp = input("Masukan password baru: ")
+        kp = input("Konfirmasi Password: ")
+        if (gp==kp):
+            idt = int (idp)
+            id_ = [idt]
+            ganti(pa,gp,id_)
+        else:
+            print ("PASSWORD TIDAK COCOK")
+            o = int (input("0 for back : "))
+            if (o == 0):
+                menu()
+            else:
+                exit()
+                
+    elif(pill2==0):
+        exit()
+    
+    else:
+        print("Menu tidak tersedia")
+
+#its for signup
+####        ANGGOTA
+ 
+def login(name,nama,passwd):
+    cursor=db.cursor()
+    sql="""SELECT*FROM anggota WHERE nama=%s"""
+    cursor.execute(sql,name)
+    result=cursor.fetchall()
+    for data in result:
+        name = data[1]
+        pas = data[2]
+        if (name==nama) and (passwd==pas):
+            print ("Berhasil Masuk")
+            profile.append(data[0])
+            profile.append(data[1])
+            profile.append(data[3])
+            menu()
+        else:
+            print ("nama atau password salah")
+            
+            
+#this fungsion to chek member if name is added user cant use the same name again                
+def daftar(data1):
+    cursor=db.cursor()
+    sql="""SELECT*FROM anggota WHERE nama=%s"""
+    cursor.execute(sql,data1)
+    result=cursor.fetchall()
+    for data in result:
+        daftar.insert(0,"gajadi")
+
+#to add a data to mysql database
+ #daftar
+def add(data):
+    haha= koko[0]
+    if (haha == 0):
+        cursor = db.cursor()
+        sql="""INSERT INTO anggota (nama,password) VALUES (%s,%s)"""
+        cursor.execute(sql,data)
+        db.commit()
+        print('{}Data anggota berhasil ditambahkan!'.format(cursor.rowcount))
+        print("Silahkan pilih opsi Masuk")
+        main()
+    else:
+        print("Nama Telah Digunakan")
+
+#first main
+#####       MAIN
+def main():
+    print("\t\t","SELAMAT DATANG!")
+    print("1. Masuk")
+    print("2. Daftar")
+    pill=int (input("pilih metode login: "))
+    if (pill==1):
+        inama=input("Masukan nama anda: ")
+        ipasswd=input("Masukan password: ")
+        name=[inama]
+        nama=inama
+        passwd=ipasswd
+        login(name,nama,passwd)
+
+    elif (pill==2):
+        nama=input("Masukan nama anda: ")
+        p=input("Masukan password anda: ")
+        o=input("Monfirmasi pasword: ")
+        if (p==o):
+            data1=[nama]
+            data=[nama,o]
+            daftar(data1)
+            add(data)
+        else:
+            print ("Password tidak cocok")
+
+    else:
+        print ("Menu tidak tersedia")
+
+#call main and run it first
+main()
