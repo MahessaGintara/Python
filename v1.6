@@ -9,7 +9,6 @@ koko = [0]
 today = date.today()
 
 
-##this program fuction is for connect this program to mysql database
 ##      CONNECT
 def koneksi():
     db = mysql.connector.connect(
@@ -26,8 +25,6 @@ def koneksi():
 
         
 db = koneksi()
-
-##show profile information
 
 #info saldo
 def info(data):
@@ -47,7 +44,6 @@ def info(data):
         else:
             exit()
 
-##search recipient account
 #transfer
 def transfer(data2):
     cursor=db.cursor()
@@ -67,7 +63,6 @@ def transfer(data2):
         else:
             exit()
             
-## to edit or change the sender's data
 
 def transfer1(sisa,saldo,idp):
     q= int (sisa)
@@ -84,7 +79,7 @@ def transfer1(sisa,saldo,idp):
     data1.insert(0,e)
     data1.insert(1,nama)
 
-#program to edit recipient data
+
 def transfer2(saldot,saldo,idt,namapene):
     q= int (saldot)
     w= int (saldo)
@@ -100,7 +95,7 @@ def transfer2(saldot,saldo,idt,namapene):
     data2.insert(1,namapene)
     data2.insert(2,w)
 
-##to add transaction history
+
 #riwayat
 def riwayat():
     idpgm=int(data1[0])
@@ -116,7 +111,7 @@ def riwayat():
     db.commit()
 
 
-##this is program to show sended money
+
 def riwayat1(data):
     cursor=db.cursor()
     sql="""SELECT*FROM transaksi WHERE id_pengirim=(%s)"""
@@ -130,7 +125,7 @@ def riwayat1(data):
         print("|",data[0],"\t\t|",data[1],"\t\t|",data[2],"\t|",data[3],"\t|",data[4],"\t|",data[5])
         print("+-------------------------------------------------------------------------------------------------------------------------+")
 
-##this is program to show recived money
+
 def riwayat2(data):
     cursor=db.cursor()
     sql="""SELECT*FROM transaksi WHERE id_penerima=(%s)"""
@@ -150,7 +145,7 @@ def riwayat2(data):
     else:
             exit()
             
-##this is program to cahge password
+
 
 def ganti(pa,gp,id_):
     cursor=db.cursor()
@@ -181,7 +176,7 @@ def ganti(pa,gp,id_):
 
 
 
-## this is sub menu 
+##sub menu 
 def menu():
     nama = (profile[1])
     print ("\t","Selamat datang",nama)
@@ -195,13 +190,11 @@ def menu():
     print ("0. Keluar")
     pill2=int(input("Pilih Menu: "))
     
-    ##this is to show member info
     if(pill2==1):
         id_=int(profile[0])
         data = [id_]
         info(data)
         
-    ##this is for send money to other user or account
     elif(pill2==2):
         idp=int(profile[0])
         sisa=int(profile[2])
@@ -252,14 +245,12 @@ def menu():
             else:
                 exit()
 
-    ##this is for show history off transactions
     elif(pill2==3):
         idp=int(profile[0])
         data = [idp]
         riwayat1(data)
         riwayat2(data)
 
-    #this fuction is to change a password account
     elif(pill2==4):
         idp= (profile[0])
         pa = input("Masukan password awal: ")
@@ -283,7 +274,7 @@ def menu():
     else:
         print("Menu tidak tersedia")
 
-#its for signup
+
 ####        ANGGOTA
  
 def login(name,nama,passwd):
@@ -304,7 +295,7 @@ def login(name,nama,passwd):
             print ("nama atau password salah")
             
             
-#this fungsion to chek member if name is added user cant use the same name again                
+               
 def daftar(data1):
     cursor=db.cursor()
     sql="""SELECT*FROM anggota WHERE nama=%s"""
@@ -313,7 +304,7 @@ def daftar(data1):
     for data in result:
         daftar.insert(0,"gajadi")
 
-#to add a data to mysql database
+
  #daftar
 def add(data):
     haha= koko[0]
@@ -328,7 +319,7 @@ def add(data):
     else:
         print("Nama Telah Digunakan")
 
-#first main
+
 #####       MAIN
 def main():
     print("\t\t","SELAMAT DATANG!")
